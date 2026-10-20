@@ -1,0 +1,9 @@
+{
+  "name": "packing-checklist",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Packing Checklist - trip packing planner with optional cross-device sync",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
