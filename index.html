@@ -581,7 +581,10 @@ function saveState(){
 /* ---------- Cloud sync (Netlify function + Blobs) ---------- */
 var SYNC_CODE_KEY = 'packingChecklistSyncCode';
 var SYNC_URL = '/api/sync';
+var POLL_MS = 20000;       // auto-refresh interval while the tab is visible
 var pushTimer = null;
+var pushPending = false;   // an edit is waiting for the debounced push
+var pushInFlight = false;  // a PUT is currently on the wire
 var syncBusy = false;
 
 function getSyncCode(){
@@ -601,15 +604,19 @@ function syncRequest(method, body){
 }
 function schedulePush(){
   if(!getSyncCode()) return;
+  pushPending = true;
   setSyncStatus('Saving…');
   clearTimeout(pushTimer);
   pushTimer = setTimeout(pushNow, 800);
 }
 function pushNow(){
   if(!getSyncCode()) return Promise.resolve();
+  clearTimeout(pushTimer);
+  pushPending = false;
+  pushInFlight = true;
   return syncRequest('PUT', { updatedAt: state.updatedAt || Date.now(), state: state })
-    .then(function(){ setSyncStatus('☁ Synced'); })
-    .catch(function(){ setSyncStatus('Offline — will retry'); });
+    .then(function(){ pushInFlight = false; setSyncStatus('☁ Synced'); })
+    .catch(function(){ pushInFlight = false; setSyncStatus('Offline — will retry'); });
 }
 function applyRemote(remote){
   var keepActive = state.activeTripId;
@@ -620,17 +627,33 @@ function applyRemote(remote){
   persistOnly();
   render();
 }
-// Pull the cloud copy; newest edit wins. Used on load and when returning to the tab.
-function pullSync(){
+// True when applying a cloud update would disturb the user: typing in a field,
+// or a modal is open (modals hold references to the current state objects).
+function isEditing(){
+  var a = document.activeElement;
+  if(a && (a.tagName==='INPUT' || a.tagName==='TEXTAREA') && a.type!=='checkbox'){ return true; }
+  var m = document.getElementById('modalRoot');
+  return !!(m && m.children.length);
+}
+// Pull the cloud copy; newest edit wins. Used on load, when returning to the tab,
+// when the network returns, and every POLL_MS while the tab is visible (silent=true).
+function pullSync(silent){
   if(!getSyncCode() || syncBusy) return Promise.resolve();
   syncBusy = true;
-  setSyncStatus('Syncing…');
+  if(!silent) setSyncStatus('Syncing…');
   return syncRequest('GET').then(function(remote){
     if(!remote.exists){ return pushNow(); }
     var local = state.updatedAt || 0;
-    if(remote.updatedAt > local){ applyRemote(remote); setSyncStatus('☁ Synced'); }
+    if(remote.updatedAt > local){
+      if(pushPending || isEditing()){
+        // don't clobber an in-progress edit; the next poll will pick the update up
+        if(!silent) setSyncStatus('☁ Synced');
+        return;
+      }
+      applyRemote(remote); setSyncStatus('☁ Synced');
+    }
     else if(remote.updatedAt < local){ return pushNow(); }
-    else { setSyncStatus('☁ Synced'); }
+    else if(!silent){ setSyncStatus('☁ Synced'); }
   }).catch(function(){
     setSyncStatus('Offline — will retry');
   }).then(function(){ syncBusy = false; });
@@ -638,7 +661,13 @@ function pullSync(){
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState==='visible') pullSync();
 });
-window.addEventListener('online', pullSync);
+window.addEventListener('online', function(){ pullSync(); });
+// Auto-refresh: only while visible, sync is on, and no push is pending or in flight.
+setInterval(function(){
+  if(document.visibilityState!=='visible' || !getSyncCode()) return;
+  if(pushPending || pushInFlight) return;
+  pullSync(true);
+}, POLL_MS);
 
 function openSyncModal(){
   var root = document.getElementById('modalRoot');
