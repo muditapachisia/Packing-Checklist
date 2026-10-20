@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packing Checklist</title>
+<style>
+  :root{
+    --purple:#6c5ce7;
+    --purple-light:#efeaff;
+    --purple-dark:#4b3fc0;
+    --green:#2ecc71;
+    --bg:#f7f7fb;
+    --card:#ffffff;
+    --text:#2d2d3a;
+    --text-light:#8a8a9a;
+    --border:#ececf3;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(30,30,60,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+  /* Sidebar */
+  .sidebar{
+    width:250px;
+    flex-shrink:0;
+    background:var(--card);
+    border-right:1px solid var(--border);
+    padding:20px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .sidebar h1{
+    font-size:17px;
+    margin:2px 6px 16px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .sidebar h1 .emoji{font-size:20px;}
+  .trip-tab{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:10px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .15s;
+  }
+  .trip-tab:hover{background:var(--purple-light);}
+  .trip-tab.active{background:var(--purple-light);border-color:var(--purple);}
+  .trip-tab-top{display:flex;justify-content:space-between;align-items:center;}
+  .trip-tab-name{font-weight:600;font-size:14px;}
+  .trip-tab-pct{font-size:12px;color:var(--purple-dark);font-weight:700;}
+  .trip-tab-bar{height:5px;border-radius:4px;background:var(--border);overflow:hidden;}
+  .trip-tab-bar-fill{height:100%;background:var(--purple);border-radius:4px;transition:width .25s;}
+  .add-trip-btn{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1.5px dashed #c9c4f0;
+    background:transparent;
+    color:var(--purple-dark);
+    font-weight:600;
+    cursor:pointer;
+    font-size:13px;
+  }
+  .add-trip-btn:hover{background:var(--purple-light);}
+  .sidebar-footer{
+    margin-top:auto;
+    padding-top:14px;
+  }
+  .archive-btn{
+    width:100%;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--bg);
+    color:var(--text);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .archive-btn:hover{background:var(--purple-light);}
+
+  /* Main */
+  .main{
+    flex:1;
+    padding:28px 36px 60px;
+    max-width:900px;
+  }
+  .trip-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:24px;
+    margin-bottom:26px;
+  }
+  .trip-title-block{flex:1;}
+  .editable-title{
+    font-size:26px;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .editable-title input{
+    font-size:26px;
+    font-weight:800;
+    border:none;
+    border-bottom:2px solid var(--purple);
+    outline:none;
+    background:transparent;
+    font-family:inherit;
+    color:var(--text);
+    width:100%;
+    max-width:420px;
+  }
+  .edit-icon{
+    cursor:pointer;
+    color:var(--text-light);
+    font-size:14px;
+    opacity:.6;
+  }
+  .edit-icon:hover{opacity:1;}
+  .trip-subtitle{
+    color:var(--text-light);
+    font-size:14px;
+    margin-top:4px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .trip-subtitle input{
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid var(--purple);
+    outline:none;
+    background:transparent;
+    font-family:inherit;
+    color:var(--text-light);
+  }
+  .trip-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+  }
+  .pill-btn{
+    padding:6px 12px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    background:var(--card);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--text);
+  }
+  .pill-btn:hover{background:var(--purple-light);border-color:var(--purple);}
+  .pill-btn.danger{color:#e0554a;}
+  .pill-btn.danger:hover{background:#fdeceb;border-color:#e0554a;}
+
+  /* Progress ring */
+  .progress-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+  }
+  .ring{
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    background:conic-gradient(var(--purple) calc(var(--pct)*1%), var(--border) 0);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .3s;
+  }
+  .ring-inner{
+    width:74px;
+    height:74px;
+    border-radius:50%;
+    background:var(--card);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+  }
+  .ring-pct{font-size:18px;font-weight:800;color:var(--purple-dark);}
+  .ring-label{font-size:9px;color:var(--text-light);text-transform:uppercase;letter-spacing:.03em;}
+  .progress-count{font-size:12px;color:var(--text-light);}
+
+  /* Categories */
+  .category{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .category-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px;
+    cursor:pointer;
+    background:#fbfaff;
+    border-bottom:1px solid var(--border);
+  }
+  .category-header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex:1;
+    min-width:0;
+  }
+  .chevron{
+    color:var(--text-light);
+    font-size:11px;
+    transition:transform .15s;
+    flex-shrink:0;
+  }
+  .category.collapsed .chevron{transform:rotate(-90deg);}
+  .category-name{
+    font-weight:700;
+    font-size:14.5px;
+  }
+  .category-name input{
+    font-weight:700;
+    font-size:14.5px;
+    border:none;
+    border-bottom:1px solid var(--purple);
+    outline:none;
+    background:transparent;
+    font-family:inherit;
+  }
+  .category-count{
+    font-size:12px;
+    color:var(--text-light);
+    background:var(--bg);
+    padding:2px 8px;
+    border-radius:10px;
+    flex-shrink:0;
+  }
+  .category-header-right{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .icon-btn{
+    width:26px;
+    height:26px;
+    border-radius:7px;
+    border:none;
+    background:transparent;
+    color:var(--text-light);
+    cursor:pointer;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .icon-btn:hover{background:var(--purple-light);color:var(--purple-dark);}
+  .icon-btn.danger:hover{background:#fdeceb;color:#e0554a;}
+  .category-body{padding:8px 16px 14px;}
+  .category.collapsed .category-body{display:none;}
+  .item-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 4px;
+    border-bottom:1px solid #f4f3fa;
+  }
+  .item-row:last-child{border-bottom:none;}
+  .item-row input[type=checkbox]{
+    width:18px;
+    height:18px;
+    accent-color:var(--purple);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .item-text{
+    flex:1;
+    font-size:14px;
+    cursor:text;
+  }
+  .item-text.checked{
+    color:var(--text-light);
+    text-decoration:line-through;
+  }
+  .item-text input{
+    width:100%;
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid var(--purple);
+    outline:none;
+    background:transparent;
+    font-family:inherit;
+    color:var(--text);
+  }
+  .add-item-row{
+    display:flex;
+    gap:8px;
+    padding:10px 4px 2px;
+  }
+  .add-item-row input{
+    flex:1;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:7px 10px;
+    font-size:13.5px;
+    outline:none;
+    font-family:inherit;
+  }
+  .add-item-row input:focus{border-color:var(--purple);}
+  .add-item-row button{
+    border:none;
+    background:var(--purple);
+    color:#fff;
+    border-radius:8px;
+    padding:7px 14px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .add-item-row button:hover{background:var(--purple-dark);}
+
+  .add-category-btn{
+    width:100%;
+    padding:14px;
+    border-radius:var(--radius);
+    border:1.5px dashed #c9c4f0;
+    background:transparent;
+    color:var(--purple-dark);
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .add-category-btn:hover{background:var(--purple-light);}
+
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--text-light);
+  }
+  .empty-state h2{color:var(--text);font-size:18px;margin-bottom:6px;}
+
+  /* Modal */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(30,30,45,0.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal{
+    background:#fff;
+    border-radius:16px;
+    width:100%;
+    max-width:460px;
+    max-height:82vh;
+    overflow-y:auto;
+    padding:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+  }
+  .modal h3{margin:0 0 4px;font-size:18px;}
+  .modal .modal-sub{font-size:13px;color:var(--text-light);margin-bottom:16px;}
+  .modal-tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--bg);padding:4px;border-radius:10px;}
+  .modal-tab{
+    flex:1;
+    text-align:center;
+    padding:7px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--text-light);
+  }
+  .modal-tab.active{background:#fff;color:var(--purple-dark);box-shadow:var(--shadow);}
+  .archive-list{display:flex;flex-direction:column;gap:8px;}
+  .archive-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .archive-item-name{font-size:14px;font-weight:600;}
+  .archive-item-sub{font-size:12px;color:var(--text-light);}
+  .small-btn{
+    border:none;
+    background:var(--purple);
+    color:#fff;
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .small-btn:hover{background:var(--purple-dark);}
+  .small-btn.outline{background:transparent;color:var(--purple-dark);border:1px solid var(--purple);}
+  .modal input[type=text]{
+    width:100%;
+    padding:9px 11px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    font-size:14px;
+    outline:none;
+    font-family:inherit;
+    margin-bottom:10px;
+  }
+  .modal input[type=text]:focus{border-color:var(--purple);}
+  .modal-close{
+    position:sticky;
+    top:0;
+  }
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+  .close-x{
+    float:right;
+    cursor:pointer;
+    color:var(--text-light);
+    font-size:18px;
+    line-height:1;
+  }
+  .archive-edit-items{margin:8px 0;display:flex;flex-direction:column;gap:5px;}
+  .archive-edit-item{display:flex;align-items:center;gap:6px;}
+  .archive-edit-item input{flex:1;margin:0;padding:6px 9px;font-size:13px;}
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#2d2d3a;
+    color:#fff;
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13.5px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s;
+    z-index:200;
+  }
+  .toast.show{opacity:1;}
+
+  @media (max-width:720px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);}
+    .sidebar h1{display:none;}
+    .sidebar-footer{margin-top:0;}
+    .trip-tab{min-width:150px;}
+    .main{padding:20px;}
+    .trip-header{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <h1><span class="emoji">🧳</span> Packing Checklist</h1>
+    <div id="tripTabs"></div>
+    <button class="add-trip-btn" id="addTripBtn">+ Add trip</button>
+    <div class="sidebar-footer">
+      <button class="archive-btn" id="manageArchiveBtn">📚 Manage archive</button>
+      <button class="archive-btn" id="syncBtn" style="margin-top:8px;">☁️ Sync</button>
+      <div id="syncStatus" style="font-size:12px;color:var(--text-light);margin-top:6px;text-align:center;">Sync off</div>
+    </div>
+  </div>
+  <div class="main" id="main"></div>
+</div>
+
+<div id="modalRoot"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Helpers ---------- */
+function newId(prefix){ return prefix+'_'+Math.random().toString(36).slice(2,9); }
+function mkItem(text,checked){ return {id:newId('i'), text:text, checked: !!checked}; }
+function mkCategory(name, itemTexts){ return {id:newId('c'), name:name, items:(itemTexts||[]).map(function(t){return mkItem(t,false);})}; }
+function mkTrip(name, subtitle, categories){ return {id:newId('t'), name:name, subtitle:subtitle||'', categories:categories||[]}; }
+
+/* ---------- Default data ---------- */
+function defaultArchive(){
+  return [
+    {id:newId('a'), name:'Clothing & Shoes', items:['Clothes','Undergarments','Shoes','Belts']},
+    {id:newId('a'), name:'Accessories', items:['Purse','Cap','Sunglasses','Accessories','Jewellery / bangles']},
+    {id:newId('a'), name:'Beauty & Skincare', items:['Sunscreen','Serums / skincare','Perfume','Hair style brush','Makeup','Nails']},
+    {id:newId('a'), name:'Health & Hygiene', items:['Med kit','Sanitizer','Wet wipes','Tampons','Pee buddy']},
+    {id:newId('a'), name:'Documents', items:['Passports','ID / boarding passes']},
+    {id:newId('a'), name:'Electronics', items:['Phone charger','Camera','Power bank','Headphones']},
+    {id:newId('a'), name:'Wedding / Formal', items:['Indian clothes (wedding)','Jewellery / bangles','Safety pins','Bindi','Fancy shoes']},
+    {id:newId('a'), name:'Outdoor / National Park', items:['National parks passport','Blanket','Hiking shoes','Bug spray']},
+    {id:newId('a'), name:'Beach / Swim', items:['Swim wear','Swim goggles','Flip flops','Beach towel']},
+    {id:newId('a'), name:'Cold Weather', items:['Jacket','Gloves','Thermals','Scarf']},
+    {id:newId('a'), name:'Fun Extras', items:['Polaroid / selfie stick','Journal','Book']}
+  ];
+}
+
+function defaultTrips(){
+  var austin = mkTrip('Austin Trip','Fun trip · Summer 2026',[
+    mkCategory('Clothing & Shoes',['Clothes','Undergarments','Shoes','Belts']),
+    mkCategory('Accessories',['Purse','Cap','Sunglasses','Accessories']),
+    mkCategory('Beauty & Skincare',['Sunscreen','Serums / skin care (eye patch / face mask)','Perfume','Hair style brush','Make up']),
+    mkCategory('Health & Hygiene',['Sanitizer','Med kit','Kits']),
+    mkCategory('Documents',['Passports'])
+  ]);
+  austin.categories.forEach(function(c){ c.items.forEach(function(i){ i.checked = true; }); });
+
+  var la = mkTrip('LA Trip','Wedding + National Park · Summer 2026',[
+    mkCategory('Clothing & Shoes',['Clothes (trip)','Undergarments','Shoes (fancy, sports, flip flops)','Belts']),
+    mkCategory('Wedding / Formal',['Indian clothes (wedding)','Jewellery / accessories / bangles','Safety pins','Bindi','Nails **']),
+    mkCategory('Accessories',['Purse','Cap','Sunglasses']),
+    mkCategory('Beauty & Skincare',['Makeup','Hair style brush','Perfume','Sunscreen','Serums / skincare']),
+    mkCategory('Health & Hygiene',['Med kit','Sanitizer','Tampons','Pee buddy','Wet wipes']),
+    mkCategory('Documents',['Passports','National parks passport']),
+    mkCategory('Outdoor / National Park',['Blanket']),
+    mkCategory('Fun Extras',['Polaroid / selfie stick']),
+    mkCategory('Miscellaneous',['Kits'])
+  ]);
+
+  var birthday = mkTrip('Birthday Trip','Destination TBD · Summer 2026',[
+    mkCategory('Clothing & Shoes',['Clothes','Shoes','Belts','Undergarments']),
+    mkCategory('Beach / Swim',['Swim wear','Sunglasses / swim goggles']),
+    mkCategory('Accessories',['Cap','Accessories','Purse']),
+    mkCategory('Beauty & Skincare',['Sunscreen','Make up','Hair style brush','Perfume','Serums / skin care (eye patch / face mask)']),
+    mkCategory('Health & Hygiene',['Med kit (chk dramamine / avomine)','Sanitizer','Pee buddy','Wet wipes']),
+    mkCategory('Documents',['Passports','NP book (?)']),
+    mkCategory('Fun Extras',['Polaroid / selfie stick']),
+    mkCategory('Miscellaneous',['Kits'])
+  ]);
+
+  return [austin, la, birthday];
+}
+
+/* ---------- State ---------- */
+var STORAGE_KEY = 'packingPlannerState_v1';
+var state;
+
+function loadState(){
+  var raw = null;
+  try{ raw = localStorage.getItem(STORAGE_KEY); }catch(e){}
+  if(raw){
+    try{
+      var parsed = JSON.parse(raw);
+      if(parsed && parsed.trips && parsed.trips.length){ return parsed; }
+    }catch(e){}
+  }
+  var trips = defaultTrips();
+  return { trips: trips, archive: defaultArchive(), activeTripId: trips[0].id };
+}
+
+function persistOnly(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+// Every user edit goes through saveState: stamps time, saves locally, queues a cloud push.
+function saveState(){
+  state.updatedAt = Date.now();
+  persistOnly();
+  schedulePush();
+}
+
+/* ---------- Cloud sync (Netlify function + Blobs) ---------- */
+var SYNC_CODE_KEY = 'packingChecklistSyncCode';
+var SYNC_URL = '/api/sync';
+var pushTimer = null;
+var syncBusy = false;
+
+function getSyncCode(){
+  try{ return localStorage.getItem(SYNC_CODE_KEY) || ''; }catch(e){ return ''; }
+}
+function setSyncStatus(msg){
+  var el = document.getElementById('syncStatus');
+  if(el) el.textContent = msg;
+}
+function syncRequest(method, body){
+  var opts = { method: method, headers: { 'x-sync-code': getSyncCode() }, cache: 'no-store' };
+  if(body){ opts.body = JSON.stringify(body); opts.headers['content-type'] = 'application/json'; }
+  return fetch(SYNC_URL, opts).then(function(r){
+    if(!r.ok){ throw new Error('HTTP '+r.status); }
+    return r.json();
+  });
+}
+function schedulePush(){
+  if(!getSyncCode()) return;
+  setSyncStatus('Saving…');
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushNow, 800);
+}
+function pushNow(){
+  if(!getSyncCode()) return Promise.resolve();
+  return syncRequest('PUT', { updatedAt: state.updatedAt || Date.now(), state: state })
+    .then(function(){ setSyncStatus('☁ Synced'); })
+    .catch(function(){ setSyncStatus('Offline — will retry'); });
+}
+function applyRemote(remote){
+  var keepActive = state.activeTripId;
+  state = remote.state;
+  state.updatedAt = remote.updatedAt;
+  var ok = state.trips.some(function(t){ return t.id===keepActive; });
+  state.activeTripId = ok ? keepActive : (state.trips[0] ? state.trips[0].id : null);
+  persistOnly();
+  render();
+}
+// Pull the cloud copy; newest edit wins. Used on load and when returning to the tab.
+function pullSync(){
+  if(!getSyncCode() || syncBusy) return Promise.resolve();
+  syncBusy = true;
+  setSyncStatus('Syncing…');
+  return syncRequest('GET').then(function(remote){
+    if(!remote.exists){ return pushNow(); }
+    var local = state.updatedAt || 0;
+    if(remote.updatedAt > local){ applyRemote(remote); setSyncStatus('☁ Synced'); }
+    else if(remote.updatedAt < local){ return pushNow(); }
+    else { setSyncStatus('☁ Synced'); }
+  }).catch(function(){
+    setSyncStatus('Offline — will retry');
+  }).then(function(){ syncBusy = false; });
+}
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState==='visible') pullSync();
+});
+window.addEventListener('online', pullSync);
+
+function openSyncModal(){
+  var root = document.getElementById('modalRoot');
+  var code = getSyncCode();
+  root.innerHTML =
+    '<div class="overlay" id="overlay"><div class="modal">'+
+      '<span class="close-x" id="closeModalX">&times;</span>'+
+      '<h3>Cloud sync</h3>'+
+      '<div class="modal-sub">Use the same secret code on every device to keep your trips, checklists and archive in sync. Anyone who knows the code can view and edit your data, so make it hard to guess (8+ characters).</div>'+
+      '<input type="text" id="syncCodeInput" placeholder="Secret sync code" value="'+escapeHtml(code)+'" autocomplete="off">'+
+      '<div class="modal-actions">'+
+        (code ? '<button class="small-btn outline" id="syncOffBtn">Turn off</button><button class="small-btn outline" id="syncNowBtn">Sync now</button>' : '')+
+        '<button class="small-btn" id="syncSaveBtn">'+(code?'Update code':'Turn on')+'</button>'+
+      '</div>'+
+    '</div></div>';
+  document.getElementById('closeModalX').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', function(e){ if(e.target.id==='overlay') closeModal(); });
+  document.getElementById('syncSaveBtn').addEventListener('click', function(){
+    var v = document.getElementById('syncCodeInput').value.trim();
+    if(v.length < 8){ showToast('Code must be at least 8 characters'); return; }
+    enableSync(v);
+  });
+  if(code){
+    document.getElementById('syncOffBtn').addEventListener('click', function(){
+      try{ localStorage.removeItem(SYNC_CODE_KEY); }catch(e){}
+      setSyncStatus('Sync off'); closeModal(); showToast('Sync turned off on this device');
+    });
+    document.getElementById('syncNowBtn').addEventListener('click', function(){ closeModal(); pullSync(); });
+  }
+}
+
+// First-time connect on a device: decide whether cloud or this device wins.
+function enableSync(code){
+  try{ localStorage.setItem(SYNC_CODE_KEY, code); }catch(e){}
+  closeModal();
+  setSyncStatus('Connecting…');
+  syncRequest('GET').then(function(remote){
+    if(remote.exists){
+      var useCloud = confirm('Cloud data already exists for this code.\n\nOK = replace THIS device with the cloud data.\nCancel = overwrite the cloud with THIS device\'s data.');
+      if(useCloud){ applyRemote(remote); setSyncStatus('☁ Synced'); showToast('Loaded cloud data'); return; }
+    }
+    state.updatedAt = Date.now();
+    persistOnly();
+    return pushNow().then(function(){ showToast('Sync on'); });
+  }).catch(function(){
+    setSyncStatus('Could not reach sync service');
+    showToast('Sync service unreachable (only works on the hosted site)');
+  });
+}
+
+function getActiveTrip(){
+  for(var i=0;i<state.trips.length;i++){ if(state.trips[i].id===state.activeTripId) return state.trips[i]; }
+  return state.trips[0] || null;
+}
+
+function tripProgress(trip){
+  var total=0, done=0;
+  trip.categories.forEach(function(c){
+    c.items.forEach(function(it){ total++; if(it.checked) done++; });
+  });
+  return {total:total, done:done, pct: total? Math.round(done/total*100) : 0};
+}
+
+/* ---------- Toast ---------- */
+var toastTimer;
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+
+/* ---------- Rendering ---------- */
+function render(){
+  renderSidebar();
+  renderMain();
+}
+
+function renderSidebar(){
+  var wrap = document.getElementById('tripTabs');
+  wrap.innerHTML = '';
+  state.trips.forEach(function(trip){
+    var p = tripProgress(trip);
+    var el = document.createElement('div');
+    el.className = 'trip-tab' + (trip.id===state.activeTripId ? ' active':'');
+    el.innerHTML =
+      '<div class="trip-tab-top">'+
+        '<span class="trip-tab-name">'+escapeHtml(trip.name)+'</span>'+
+        '<span class="trip-tab-pct">'+p.pct+'%</span>'+
+      '</div>'+
+      '<div class="trip-tab-bar"><div class="trip-tab-bar-fill" style="width:'+p.pct+'%"></div></div>';
+    el.addEventListener('click', function(){
+      state.activeTripId = trip.id;
+      persistOnly(); // view change only: don't bump updatedAt or it could overwrite newer cloud data
+      render();
+    });
+    wrap.appendChild(el);
+  });
+}
+
+function escapeHtml(s){
+  var d = document.createElement('div');
+  d.textContent = s == null ? '' : s;
+  return d.innerHTML;
+}
+
+function renderMain(){
+  var main = document.getElementById('main');
+  main.innerHTML = '';
+  var trip = getActiveTrip();
+  if(!trip){
+    main.innerHTML = '<div class="empty-state"><h2>No trips yet</h2><p>Add your first trip to start packing.</p></div>';
+    return;
+  }
+  var p = tripProgress(trip);
+
+  var header = document.createElement('div');
+  header.className = 'trip-header';
+
+  var titleBlock = document.createElement('div');
+  titleBlock.className = 'trip-title-block';
+  titleBlock.innerHTML =
+    '<div class="editable-title" id="titleDisplay">'+
+      '<span id="tripNameText">'+escapeHtml(trip.name)+'</span>'+
+      '<span class="edit-icon" id="editNameIcon" title="Rename trip">✏️</span>'+
+    '</div>'+
+    '<div class="trip-subtitle" id="subtitleDisplay">'+
+      '<span id="tripSubText">'+escapeHtml(trip.subtitle||'Add a description')+'</span>'+
+      '<span class="edit-icon" id="editSubIcon" title="Edit description">✏️</span>'+
+    '</div>'+
+    '<div class="trip-actions">'+
+      '<button class="pill-btn" id="resetTripBtn">Uncheck all</button>'+
+      '<button class="pill-btn danger" id="deleteTripBtn">Delete trip</button>'+
+    '</div>';
+
+  var progressBlock = document.createElement('div');
+  progressBlock.className = 'progress-wrap';
+  progressBlock.innerHTML =
+    '<div class="ring" style="--pct:'+p.pct+'"><div class="ring-inner"><div class="ring-pct">'+p.pct+'%</div><div class="ring-label">packed</div></div></div>'+
+    '<div class="progress-count">'+p.done+' of '+p.total+' items</div>';
+
+  header.appendChild(titleBlock);
+  header.appendChild(progressBlock);
+  main.appendChild(header);
+
+  if(trip.categories.length===0){
+    var empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = '<h2>No categories yet</h2><p>Add a category from your archive or create a custom one.</p>';
+    main.appendChild(empty);
+  }
+
+  trip.categories.forEach(function(cat){
+    main.appendChild(renderCategory(trip, cat));
+  });
+
+  var addCatBtn = document.createElement('button');
+  addCatBtn.className = 'add-category-btn';
+  addCatBtn.textContent = '+ Add category';
+  addCatBtn.addEventListener('click', function(){ openAddCategoryModal(trip); });
+  main.appendChild(addCatBtn);
+
+  // wire up header interactions
+  document.getElementById('editNameIcon').addEventListener('click', function(){ startEditTripName(trip); });
+  document.getElementById('tripNameText').addEventListener('click', function(){ startEditTripName(trip); });
+  document.getElementById('editSubIcon').addEventListener('click', function(){ startEditTripSub(trip); });
+  document.getElementById('tripSubText').addEventListener('click', function(){ startEditTripSub(trip); });
+  document.getElementById('resetTripBtn').addEventListener('click', function(){
+    if(confirm('Uncheck all items in "'+trip.name+'"?')){
+      trip.categories.forEach(function(c){ c.items.forEach(function(i){ i.checked=false; }); });
+      saveState(); render();
+    }
+  });
+  document.getElementById('deleteTripBtn').addEventListener('click', function(){
+    if(confirm('Delete trip "'+trip.name+'"? This cannot be undone.')){
+      state.trips = state.trips.filter(function(t){ return t.id!==trip.id; });
+      if(state.trips.length){ state.activeTripId = state.trips[0].id; }
+      saveState(); render();
+    }
+  });
+}
+
+function startEditTripName(trip){
+  var block = document.getElementById('titleDisplay');
+  block.innerHTML = '<input type="text" id="tripNameInput" value="'+escapeHtml(trip.name)+'">';
+  var input = document.getElementById('tripNameInput');
+  input.focus(); input.select();
+  function commit(){
+    var v = input.value.trim();
+    if(v){ trip.name = v; }
+    saveState(); render();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ input.blur(); } if(e.key==='Escape'){ render(); } });
+}
+
+function startEditTripSub(trip){
+  var block = document.getElementById('subtitleDisplay');
+  block.innerHTML = '<input type="text" id="tripSubInput" value="'+escapeHtml(trip.subtitle||'')+'" placeholder="e.g. Destination, dates, occasion">';
+  var input = document.getElementById('tripSubInput');
+  input.focus(); input.select();
+  function commit(){
+    trip.subtitle = input.value.trim();
+    saveState(); render();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ input.blur(); } if(e.key==='Escape'){ render(); } });
+}
+
+function renderCategory(trip, cat){
+  var wrap = document.createElement('div');
+  wrap.className = 'category';
+  wrap.dataset.catId = cat.id;
+
+  var doneCount = cat.items.filter(function(i){return i.checked;}).length;
+
+  var header = document.createElement('div');
+  header.className = 'category-header';
+  header.innerHTML =
+    '<div class="category-header-left">'+
+      '<span class="chevron">▾</span>'+
+      '<span class="category-name" id="catName_'+cat.id+'">'+escapeHtml(cat.name)+'</span>'+
+      '<span class="category-count">'+doneCount+'/'+cat.items.length+'</span>'+
+    '</div>'+
+    '<div class="category-header-right">'+
+      '<button class="icon-btn" title="Rename category" id="renameCat_'+cat.id+'">✏️</button>'+
+      '<button class="icon-btn" title="Save to archive" id="saveArchive_'+cat.id+'">📚</button>'+
+      '<button class="icon-btn danger" title="Delete category" id="delCat_'+cat.id+'">🗑</button>'+
+    '</div>';
+
+  header.addEventListener('click', function(e){
+    if(e.target.closest('.icon-btn')) return;
+    wrap.classList.toggle('collapsed');
+  });
+
+  var body = document.createElement('div');
+  body.className = 'category-body';
+
+  cat.items.forEach(function(item){
+    body.appendChild(renderItem(trip, cat, item));
+  });
+
+  var addRow = document.createElement('div');
+  addRow.className = 'add-item-row';
+  addRow.innerHTML = '<input type="text" placeholder="Add item..." id="newItemInput_'+cat.id+'"><button>Add</button>';
+  body.appendChild(addRow);
+
+  wrap.appendChild(header);
+  wrap.appendChild(body);
+
+  // events
+  setTimeout(function(){
+    document.getElementById('renameCat_'+cat.id).addEventListener('click', function(e){
+      e.stopPropagation();
+      startEditCategoryName(cat);
+    });
+    document.getElementById('saveArchive_'+cat.id).addEventListener('click', function(e){
+      e.stopPropagation();
+      saveCategoryToArchive(cat);
+    });
+    document.getElementById('delCat_'+cat.id).addEventListener('click', function(e){
+      e.stopPropagation();
+      if(confirm('Delete category "'+cat.name+'" and its items?')){
+        trip.categories = trip.categories.filter(function(c){ return c.id!==cat.id; });
+        saveState(); render();
+      }
+    });
+    var input = document.getElementById('newItemInput_'+cat.id);
+    var btn = addRow.querySelector('button');
+    function addItem(){
+      var v = input.value.trim();
+      if(!v) return;
+      cat.items.push(mkItem(v,false));
+      saveState(); render();
+    }
+    btn.addEventListener('click', addItem);
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter') addItem(); });
+  },0);
+
+  return wrap;
+}
+
+function startEditCategoryName(cat){
+  var el = document.getElementById('catName_'+cat.id);
+  el.innerHTML = '<input type="text" value="'+escapeHtml(cat.name)+'" id="catNameInput_'+cat.id+'">';
+  var input = document.getElementById('catNameInput_'+cat.id);
+  input.focus(); input.select();
+  function commit(){
+    var v = input.value.trim();
+    if(v) cat.name = v;
+    saveState(); render();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); if(e.key==='Escape') render(); });
+  input.addEventListener('click', function(e){ e.stopPropagation(); });
+}
+
+function renderItem(trip, cat, item){
+  var row = document.createElement('div');
+  row.className = 'item-row';
+
+  var cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = item.checked;
+  cb.addEventListener('change', function(){
+    item.checked = cb.checked;
+    saveState(); render();
+  });
+
+  var text = document.createElement('span');
+  text.className = 'item-text' + (item.checked ? ' checked':'');
+  text.textContent = item.text;
+  text.addEventListener('click', function(){
+    text.innerHTML = '';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.value = item.text;
+    text.appendChild(input);
+    input.focus(); input.select();
+    function commit(){
+      var v = input.value.trim();
+      if(v) item.text = v;
+      saveState(); render();
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); if(e.key==='Escape') render(); });
+  });
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'icon-btn danger';
+  delBtn.textContent = '✕';
+  delBtn.title = 'Remove item';
+  delBtn.addEventListener('click', function(){
+    cat.items = cat.items.filter(function(i){ return i.id!==item.id; });
+    saveState(); render();
+  });
+
+  row.appendChild(cb);
+  row.appendChild(text);
+  row.appendChild(delBtn);
+  return row;
+}
+
+function saveCategoryToArchive(cat){
+  var itemTexts = cat.items.map(function(i){ return i.text; });
+  var existing = state.archive.find(function(a){ return a.name.toLowerCase()===cat.name.toLowerCase(); });
+  if(existing){
+    if(!confirm('An archive category named "'+cat.name+'" already exists. Overwrite its items?')) return;
+    existing.items = itemTexts;
+  }else{
+    state.archive.push({id:newId('a'), name:cat.name, items:itemTexts});
+  }
+  saveState();
+  showToast('Saved "'+cat.name+'" to archive');
+}
+
+/* ---------- Modals ---------- */
+function closeModal(){ document.getElementById('modalRoot').innerHTML = ''; }
+
+function openAddCategoryModal(trip){
+  var root = document.getElementById('modalRoot');
+  root.innerHTML =
+    '<div class="overlay" id="overlay">'+
+      '<div class="modal">'+
+        '<span class="close-x" id="closeModalX">&times;</span>'+
+        '<h3>Add category</h3>'+
+        '<div class="modal-sub">Pull in a category from your archive, or start a new one.</div>'+
+        '<div class="modal-tabs">'+
+          '<div class="modal-tab active" id="tabArchive">From archive</div>'+
+          '<div class="modal-tab" id="tabCustom">New custom</div>'+
+        '</div>'+
+        '<div id="modalBody"></div>'+
+      '</div>'+
+    '</div>';
+
+  function renderArchiveTab(){
+    var body = document.getElementById('modalBody');
+    if(state.archive.length===0){
+      body.innerHTML = '<div class="modal-sub">Your archive is empty. Save a category from a trip, or create a custom one.</div>';
+      return;
+    }
+    var list = document.createElement('div');
+    list.className = 'archive-list';
+    state.archive.forEach(function(a){
+      var row = document.createElement('div');
+      row.className = 'archive-item';
+      row.innerHTML =
+        '<div><div class="archive-item-name">'+escapeHtml(a.name)+'</div>'+
+        '<div class="archive-item-sub">'+a.items.length+' items</div></div>';
+      var btn = document.createElement('button');
+      btn.className = 'small-btn';
+      btn.textContent = 'Add';
+      btn.addEventListener('click', function(){
+        var name = a.name;
+        var exists = trip.categories.some(function(c){ return c.name.toLowerCase()===name.toLowerCase(); });
+        if(exists) name = name + ' (2)';
+        trip.categories.push(mkCategory(name, a.items));
+        saveState(); closeModal(); render();
+        showToast('Added "'+a.name+'" to '+trip.name);
+      });
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+    body.innerHTML = '';
+    body.appendChild(list);
+  }
+
+  function renderCustomTab(){
+    var body = document.getElementById('modalBody');
+    body.innerHTML =
+      '<input type="text" id="customCatName" placeholder="Category name (e.g. Ski Gear)">'+
+      '<div class="modal-actions"><button class="small-btn" id="createCustomCat">Create category</button></div>';
+    document.getElementById('customCatName').focus();
+    document.getElementById('createCustomCat').addEventListener('click', function(){
+      var input = document.getElementById('customCatName');
+      var v = input.value.trim();
+      if(!v){ input.focus(); return; }
+      trip.categories.push(mkCategory(v, []));
+      saveState(); closeModal(); render();
+    });
+    document.getElementById('customCatName').addEventListener('keydown', function(e){
+      if(e.key==='Enter') document.getElementById('createCustomCat').click();
+    });
+  }
+
+  document.getElementById('tabArchive').addEventListener('click', function(){
+    document.getElementById('tabArchive').classList.add('active');
+    document.getElementById('tabCustom').classList.remove('active');
+    renderArchiveTab();
+  });
+  document.getElementById('tabCustom').addEventListener('click', function(){
+    document.getElementById('tabCustom').classList.add('active');
+    document.getElementById('tabArchive').classList.remove('active');
+    renderCustomTab();
+  });
+  document.getElementById('closeModalX').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', function(e){ if(e.target.id==='overlay') closeModal(); });
+
+  renderArchiveTab();
+}
+
+function openAddTripModal(){
+  var root = document.getElementById('modalRoot');
+  root.innerHTML =
+    '<div class="overlay" id="overlay">'+
+      '<div class="modal">'+
+        '<span class="close-x" id="closeModalX">&times;</span>'+
+        '<h3>New trip</h3>'+
+        '<div class="modal-sub">Give it a name, then add categories from your archive.</div>'+
+        '<input type="text" id="newTripName" placeholder="Trip name (e.g. Tokyo Trip)">'+
+        '<input type="text" id="newTripSub" placeholder="Description (optional) — destination, dates, occasion">'+
+        '<div class="modal-actions"><button class="small-btn" id="createTripBtn">Create trip</button></div>'+
+      '</div>'+
+    '</div>';
+  document.getElementById('closeModalX').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', function(e){ if(e.target.id==='overlay') closeModal(); });
+  document.getElementById('newTripName').focus();
+  document.getElementById('createTripBtn').addEventListener('click', function(){
+    var name = document.getElementById('newTripName').value.trim();
+    var sub = document.getElementById('newTripSub').value.trim();
+    if(!name){ document.getElementById('newTripName').focus(); return; }
+    var trip = mkTrip(name, sub, []);
+    state.trips.push(trip);
+    state.activeTripId = trip.id;
+    saveState(); closeModal(); render();
+  });
+  document.getElementById('newTripSub').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('createTripBtn').click(); });
+}
+
+function openManageArchiveModal(){
+  var root = document.getElementById('modalRoot');
+  root.innerHTML =
+    '<div class="overlay" id="overlay">'+
+      '<div class="modal">'+
+        '<span class="close-x" id="closeModalX">&times;</span>'+
+        '<h3>Manage archive</h3>'+
+        '<div class="modal-sub">Reusable category templates you can drop into any trip.</div>'+
+        '<input type="text" id="newArchiveName" placeholder="New template name">'+
+        '<div class="modal-actions" style="margin-top:-4px;margin-bottom:14px;"><button class="small-btn" id="addArchiveTemplate">+ Add template</button></div>'+
+        '<div id="archiveManageList" class="archive-list"></div>'+
+      '</div>'+
+    '</div>';
+
+  document.getElementById('closeModalX').addEventListener('click', closeModal);
+  document.getElementById('overlay').addEventListener('click', function(e){ if(e.target.id==='overlay') closeModal(); });
+
+  document.getElementById('addArchiveTemplate').addEventListener('click', function(){
+    var input = document.getElementById('newArchiveName');
+    var v = input.value.trim();
+    if(!v) return;
+    state.archive.push({id:newId('a'), name:v, items:[]});
+    saveState(); input.value='';
+    renderArchiveManageList();
+  });
+
+  function renderArchiveManageList(){
+    var list = document.getElementById('archiveManageList');
+    list.innerHTML = '';
+    if(state.archive.length===0){
+      list.innerHTML = '<div class="modal-sub">No templates yet.</div>';
+      return;
+    }
+    state.archive.forEach(function(a){
+      var row = document.createElement('div');
+      row.className = 'archive-item';
+      row.style.flexDirection = 'column';
+      row.style.alignItems = 'stretch';
+      var top = document.createElement('div');
+      top.style.display='flex';
+      top.style.justifyContent='space-between';
+      top.style.alignItems='center';
+      top.innerHTML = '<div class="archive-item-name">'+escapeHtml(a.name)+'</div>';
+      var delBtn = document.createElement('button');
+      delBtn.className = 'icon-btn danger';
+      delBtn.textContent = '🗑';
+      delBtn.addEventListener('click', function(){
+        if(confirm('Delete archive template "'+a.name+'"?')){
+          state.archive = state.archive.filter(function(x){ return x.id!==a.id; });
+          saveState(); renderArchiveManageList();
+        }
+      });
+      top.appendChild(delBtn);
+      row.appendChild(top);
+
+      var itemsWrap = document.createElement('div');
+      itemsWrap.className = 'archive-edit-items';
+      a.items.forEach(function(text, idx){
+        var itemRow = document.createElement('div');
+        itemRow.className = 'archive-edit-item';
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = text;
+        inp.addEventListener('change', function(){
+          a.items[idx] = inp.value.trim() || text;
+          saveState();
+        });
+        var rm = document.createElement('button');
+        rm.className = 'icon-btn danger';
+        rm.textContent = '✕';
+        rm.addEventListener('click', function(){
+          a.items.splice(idx,1);
+          saveState(); renderArchiveManageList();
+        });
+        itemRow.appendChild(inp);
+        itemRow.appendChild(rm);
+        itemsWrap.appendChild(itemRow);
+      });
+      row.appendChild(itemsWrap);
+
+      var addItemRow = document.createElement('div');
+      addItemRow.className = 'add-item-row';
+      addItemRow.innerHTML = '<input type="text" placeholder="Add item to template...">' + '<button>Add</button>';
+      var addInput = addItemRow.querySelector('input');
+      var addBtn = addItemRow.querySelector('button');
+      function addTemplateItem(){
+        var v = addInput.value.trim();
+        if(!v) return;
+        a.items.push(v);
+        saveState(); renderArchiveManageList();
+      }
+      addBtn.addEventListener('click', addTemplateItem);
+      addInput.addEventListener('keydown', function(e){ if(e.key==='Enter') addTemplateItem(); });
+      row.appendChild(addItemRow);
+
+      list.appendChild(row);
+    });
+  }
+
+  renderArchiveManageList();
+}
+
+/* ---------- Init ---------- */
+document.getElementById('addTripBtn').addEventListener('click', openAddTripModal);
+document.getElementById('manageArchiveBtn').addEventListener('click', openManageArchiveModal);
+
+document.getElementById('syncBtn').addEventListener('click', openSyncModal);
+
+state = loadState();
+persistOnly();
+render();
+if(getSyncCode()){ setSyncStatus('Syncing…'); pullSync(); }
+</script>
+</body>
+</html>
